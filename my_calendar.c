@@ -24,11 +24,17 @@ char *months[]=
 
 int inputyear(void)
 {
-	int year;
+	int year, k;
 
 	printf("Please enter a year (example: 1999) : ");
 	scanf("%d", &year);
-	return (year);
+	if(sizeof(year) == sizeof(k * 4))
+	{
+		return (year);
+	}
+	else
+		printf("Invalid Year\n");
+	return(1);
 }
 
 int determinedaycode(int year)
