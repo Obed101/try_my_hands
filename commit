@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# This scripts add, commits and push to github
+# Just type commit followed by the commit message
+# Add For Commit
+echo Adding Files To Be Committed...
+echo ===============================
+git add --all .
+echo
+#Commit
+echo Committing...
+echo =============
+git commit -m \"$1\"
+echo 
+# Push
+echo Pushing...
+echo ==========
+git push --all
