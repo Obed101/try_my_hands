@@ -2,7 +2,7 @@
 >
 > >> - C programs will be here.
 > >> - Python Files Are Here
-> >> - Java As Well
+> >> - Bash scripts, etc.
 > - All other Progaming Languages Too Can Be Located Here
 >
 >
