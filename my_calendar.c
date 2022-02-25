@@ -28,14 +28,34 @@ int inputyear(void)
 
 	printf("Please enter a year (example: 1999) : ");
 	scanf("%d", &year);
-	if(sizeof(year) == sizeof(k * 4))
+	if(validate_year(year))
 	{
 		return (year);
 	}
 	else
-		printf("Invalid Year\n");
+		printf("Invalid Year\nYear should be 4 digits from 1400 - 2050");
 	return(1);
 }
+
+
+/**
+ * validate_year - A function that checks if @year is valid
+ *
+ * @year: The year to check
+ * return: Boolean value
+ */
+int validate_year(int year)
+{
+	if (year >= 1400 && year <= 2050)
+	{
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;   //Year should be 4 digits from 1400 - 2050
+	}
+}
+
 
 int determinedaycode(int year)
 {
