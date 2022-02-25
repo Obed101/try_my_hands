@@ -9,7 +9,7 @@ echo
 #Commit
 echo Committing...
 echo =============
-git commit -m \"$1\"
+git commit -m " $1 $2 $3 $4 $5"
 echo 
 # Push
 echo Pushing...
