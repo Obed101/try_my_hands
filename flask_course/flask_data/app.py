@@ -6,7 +6,7 @@ Implementing the studies from flask course
 from flask import Flask
 from faker import Faker
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 
 fake = Faker()
@@ -47,12 +47,13 @@ class Order(db.Model):
 
 
 class Product(db.Model):
-    """The Product class"""
+    """The Product table"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(35), nullable=False, unique=True)
     price = db.Column(db.Integer, nullable=False)
 
 
+                        ########### DRIVER CODE ############
 def add_customers():
     for _ in range(100):
         customer = Customer(
@@ -67,6 +68,7 @@ def add_customers():
     db.session.commit()
 
 def add_orders():
+    """ Create New Orders """
     customers = Customer.query.all()
 
     for _ in range(1000):
@@ -96,6 +98,7 @@ def add_orders():
     db.session.commit()
 
 def add_products():
+    """ New products added """
     for _ in range(10):
         product = Product(
             name=fake.color_name(),
@@ -105,6 +108,7 @@ def add_products():
     db.session.commit()
 
 def add_order_products():
+    """ create new order_product objects """
     orders = Order.query.all()
     products = Product.query.all()
 
@@ -118,6 +122,7 @@ def add_order_products():
     db.session.commit()
 
 def create_random_data():
+    """This one creates a new database with fake data"""
     db.create_all()
     add_customers()
     add_orders()
@@ -127,6 +132,69 @@ def create_random_data():
 def get_orders_by(customer_id=1):
     """Gets all orders a customer has made"""
     customer_orders = Order.query.filter_by(customer_id=customer_id).all()
-    print(f"Here are the orders made by {customer_orders[1].customer.first_name}")
+    print(f"{customer_orders[1].customer.first_name} made these orders")
     for order in customer_orders:
         print(order.id)
+
+
+def get_pending_orders():
+    """show all pending orders"""
+    print("Here, The Pening Orders")
+    pending_orders = Order.query.filter_by(
+            shipped_date=None).order_by(Order.order_date.asc())
+    for order in pending_orders:
+        print(f"Id: {order.id}; Order date: {order.order_date}")
+
+
+def how_many_customers():
+    """Count the number of customers"""
+    no_of_customers = (Customer.query.count())
+    print(f"Current customers: {no_of_customers}")
+
+
+def orders_with_coupon():
+    """Get all orders with coupon code"""
+    coupon_orders = Order.query.filter(Order.coupon_code.isnot(None))
+    print("All orders with coupon")
+    for order in coupon_orders:
+        print(f"order: {order.id} has {order.coupon_code}")
+
+def revenue_in_some_days(x=30):
+    """Get the total revenue in last x days"""
+    amount = db.session.query(db.func.sum(Product
+        .price)).join(order_product).join(Order).filter(Order
+                .order_date > (datetime.now() - timedelta(days=x))
+        ).scalar()
+    print(f"Revenue in last {x} days: ${amount}.00")
+
+
+def average_fulfillment_time():
+    """
+    Shows the average time a
+    customer is likely to receive his order
+    """
+    average = db.session.query(
+            db.func.time(
+                db.func.avg(
+                    db.func.strftime('%s', Order
+                        .shipped_date) - db.func.strftime('%s',
+                        Order.order_date)), 'unixepoch')
+        ).filter(Order.shipped_date.isnot(None)).scalar()
+    print(f"Average time to get goods: {average}")
+
+
+def customers_who_purchased_x(amount=500):
+    """Gets all customers who have purchased at least @amount"""
+    customers = db.session.query(Customer).join(
+            Order).join(order_product).join(
+                    Product).group_by(Customer).having(db.func.sum(Product
+                        .price) >= amount)
+    try:
+        if customers[0]:
+            print(f"The following customers have purchased", end=" ")
+            print(f"more than {amount} Dollars")
+            
+            for customer in customers:
+                print(f"{customer.first_name} {customer.last_name}")
+    except IndexError:
+        print(f'No one has yet purchased {amount} Dollars')
